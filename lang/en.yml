@@ -1,0 +1,8 @@
+en:
+  OAuthSecurityAdmin:
+    MENUTITLE: OAuth
+    OAUTH: OAuth
+    OAuthCautionText: 'Caution: Pages that require authentication will be re-directed to Identity Provder'
+  IdentityProvider:
+    PLURALNAME: 'Identity Providers'
+    SINGULARNAME: 'Identity Provder'

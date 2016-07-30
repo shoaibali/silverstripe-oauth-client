@@ -1,0 +1,28 @@
+{
+    "name": "shoaibali/silverstripe-oauth-client",
+    "description": "Provides an oauth2 client support within SilverStripe",
+    "type": "silverstripe-module",
+    "keywords": ["silverstripe", "sso", "saml", "identity", "singlesignon", "oauth2"],
+    "license": "GNU GPL",
+    "authors": [
+    {
+        "name": "Shoaib Ali",
+        "email": "shoaib@webstrike.co.nz"
+    }],
+
+        "support": {
+        "issues": "https://github.com/shoaibali/silverstripe-oauth-client/issues"
+    },
+
+    "require": {
+        "php": ">=5.5",
+        "composer/installers": "*",
+        "silverstripe/framework": "~3.1",
+        "silverstripe/cms": ">=3.1.0",
+        "league/oauth2-client": "1.4.2"
+    },
+
+
+  "minimum-stability": "dev"
+
+}

@@ -30,6 +30,18 @@ How to use
 
 After configuration, you should just be able to visit /oauth/login using web-browser to initiate the OAuth2 process.
 
+Support
+-------
+
+Currently this module is in a very primitive state, feel free to fork or provide a pull request. It has only been developed with SilverStripe version 3.1.16 framework/cms. I am certain it shold work with anything 3.2+
+
+Future
+------
+
+- Better configuration management support for Providers supported by thephpleague client.
+- Add test coverage
+- Add forceSSL support
+- Auto discovery
 
 Screenshots
 -----------

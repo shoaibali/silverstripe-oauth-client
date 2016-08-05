@@ -46,6 +46,6 @@ Future
 Screenshots
 -----------
 
-![Adding OAuth Provider](https://raw.githubusercontent.com/shoaibali/silverstripe-oauth-client/master/images/screenshots/add-provider.png)
+![Adding OAuth Provider](https://raw.githubusercontent.com/shoaibali/silverstripe-oauth-client/master/images/screenshots/add-oauth-provider.png)
 
-![Editing OAuth Provider](https://raw.githubusercontent.com/shoaibali/silverstripe-oauth-client/master/images/screenshots/edit-provider.png)
+![Editing OAuth Provider](https://raw.githubusercontent.com/shoaibali/silverstripe-oauth-client/master/images/screenshots/edit-oauth-provider.png)

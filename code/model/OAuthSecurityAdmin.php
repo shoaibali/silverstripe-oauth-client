@@ -58,6 +58,7 @@ class OAuthSecurityAdmin extends LeftAndMain implements PermissionProvider {
 
             $dataColumns = $oauthField->getConfig()->getComponentByType('GridFieldDataColumns');
             $dataColumns->setDisplayFields(array(
+                'iconThumbnail' => 'Icon',
                 'Title' => 'Title',
                 'Active' => 'Active',
             ));

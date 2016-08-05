@@ -45,10 +45,16 @@ class OAuthIdentityProvider extends DataObject {
 
     private static $plural_name = 'OAuth Providers';
 
+    private static $has_one = array(
+            'Icon' => 'Image'
+        );
+
+
     function getCMSFields() {
         $fields = new FieldList();
 
         $fields->push( new TextField('Title', 'Name of provider', $this->Title));
+        $fields->push( new UploadField('Icon', 'Provider logo', $this->Icon));
 
         // TODO Add validation to ensure URLs are correct
         $fields->push( new TextField('AuthorizationURL', 'Base authorization url', $this->AuthorizationURL));
@@ -87,5 +93,11 @@ class OAuthIdentityProvider extends DataObject {
         // $this->extend('updateCMSFields', $fields);
 
         return $fields;
+    }
+
+    public function iconThumbnail()
+    {
+        // TODO return a canned image from /images folder
+        return ($this->Icon())? $this->Icon()->ResizedImage(32,32) : "";
     }
 }

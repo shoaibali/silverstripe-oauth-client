@@ -28,7 +28,9 @@ class OAuthSecurityController extends Controller {
 
         // More identity providers can be added in future for oAuth (Facebook, Twitter etc).
         // Here we use the first active by default as there shouldn't be more than one active.
+        // @TODO Cannot always pick the first one - we should look into  picking one based on ID
         $IdPsettings = OAuthIdentityProvider::get()->filter('Active', '1')->First();
+
 
         // When configured correctly this should never be the case. Just for security.
         if(empty($IdPsettings)) {
@@ -41,7 +43,7 @@ class OAuthSecurityController extends Controller {
                 E_USER_ERROR
             );
         }
-        // TODO How do we protect APISecret from not showing up in Error logs or stack trace raygun etc
+        // @TODO How do we protect APISecret from not showing up in Error logs or stack trace raygun etc
         self::$IdPsettings = array(
             'clientId'                => $IdPsettings->APIKey,    // The client ID assigned to you by the provider
             'clientSecret'            => $IdPsettings->APISecret,   // The client password assigned to you by the provider
@@ -77,30 +79,40 @@ class OAuthSecurityController extends Controller {
             // Fetch the authorization URL from the provider; this returns the
             // urlAuthorize option and generates and applies any necessary parameters
             // (e.g. state).
-            $authorizationUrl = $provider->getAuthorizationUrl();
+            $authorizationUrl = $provider->getAuthorizationUrl(['state' => $provider->getState()]);
 
-            // Get the state generated for you and store it to the session.
             Session::set('oauth2state', $provider->getState());
-            Session::set_cookie_secure(true);
-
+            Session::set_cookie_secure(true); // @TODO Until we forceSSL
 
             // Redirect the user to the authorization URL.
-            // TODO use silverstripe API to redirect $this->redirect();
-            header('Location: ' . $authorizationUrl);
-            exit();
+            return $this->redirect($authorizationUrl);
 
+        // @TODO Split these out in sepererate end-points and methods
         // Check given state against previously stored one to mitigate CSRF attack
-        } elseif ($this->request->getVar('state') !== Session::get('oauth2state')) {
+        } elseif (empty($this->request->getVar('state')) || $this->request->getVar('state') !== Session::get('oauth2state')) {
 
-            Session::clear('oauth2state');
-            // TODO raise user_error or redirect to get a new state
+            // @TODO We should not have to send the user back again to IdentityProvider to receive a state
+            // This is something that needs to be consulted with opensso to confirm there is no bug
+            if (empty($this->request->getVar('state'))) {
+
+                $authorizationUrl = $provider->getAuthorizationUrl(['state' => $provider->getState()]);
+                Session::set('oauth2state',  $provider->getState());
+
+                return $this->redirect($authorizationUrl);
+            }
+
+            // @TODO Check to see if we should clear the cookie state
+            // Session::clear('oauth2state');
+
+            // @TODO raise user_error or redirect to get a new state
             exit('Invalid state');
         } else {
 
             try {
 
                 // Try to get an access token using the authorization code grant.
-                $accessToken = $provider->getAccessToken('authorization_code',
+                $accessToken = $provider->getAccessToken(
+                    'authorization_code',
                     array('code' => $this->request->getVar('code'))
                 );
 
@@ -182,7 +194,7 @@ class OAuthSecurityController extends Controller {
             $member->Activated = true;
             $member->write();
 
-            // TODO use the BackURL for redirection if avaiable from redirect_uri from provider
+            // @TODO use the BackURL for redirection if avaiable from redirect_uri from provider
             Session::set('BackURL', '/Security/login');
         }
 

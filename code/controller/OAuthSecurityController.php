@@ -79,10 +79,14 @@ class OAuthSecurityController extends Controller {
             // Fetch the authorization URL from the provider; this returns the
             // urlAuthorize option and generates and applies any necessary parameters
             // (e.g. state).
-            $authorizationUrl = $provider->getAuthorizationUrl(['state' => $provider->getState()]);
+            $authorizationUrl = $provider->getAuthorizationUrl();
+            $state = $provider->getState();
 
-            Session::set('oauth2state', $provider->getState());
-            Session::set_cookie_secure(true); // @TODO Until we forceSSL
+            if (Director::isLive()) {
+                Session::set_cookie_secure(true); // @TODO Until we forceSSL
+            }
+
+            Session::set('oauth2state', $state);
 
             // Redirect the user to the authorization URL.
             return $this->redirect($authorizationUrl);
@@ -90,16 +94,6 @@ class OAuthSecurityController extends Controller {
         // @TODO Split these out in sepererate end-points and methods
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($this->request->getVar('state')) || $this->request->getVar('state') !== Session::get('oauth2state')) {
-
-            // @TODO We should not have to send the user back again to IdentityProvider to receive a state
-            // This is something that needs to be consulted with opensso to confirm there is no bug
-            if (empty($this->request->getVar('state'))) {
-
-                $authorizationUrl = $provider->getAuthorizationUrl(['state' => $provider->getState()]);
-                Session::set('oauth2state',  $provider->getState());
-
-                return $this->redirect($authorizationUrl);
-            }
 
             // @TODO Check to see if we should clear the cookie state
             // Session::clear('oauth2state');
@@ -123,6 +117,7 @@ class OAuthSecurityController extends Controller {
                 // echo $accessToken->getExpires() . "\n";
                 // echo ($accessToken->hasExpired() ? 'expired' : 'not expired') . "\n";
 
+
                 // Using the access token, we may look up details about the
                 // resource owner.
                 $resourceOwner = $provider->getResourceOwner($accessToken);
@@ -136,7 +131,6 @@ class OAuthSecurityController extends Controller {
                 //     self::$IdPsettings['urlResourceOwnerDetails'],
                 //     $accessToken
                 // );
-
 
                 $member = $this->authenticate($resourceOwner->toArray());
 
@@ -177,12 +171,16 @@ class OAuthSecurityController extends Controller {
         $providerUID = self::$IdPsettings['providerUniqueIdentifier'];
         $consumerUID = self::$IdPsettings['consumerUniqueIdentifier'];
 
+        //@TODO Check to make sure $resourceOwner contains a key as defined under settings
+        // otherwise it causes a warning
+
         // load the member based on the provided UID (usually the mail address)
         $member = Member::get()->filter($consumerUID, $resourceOwner[$providerUID])->first();
 
         /*
          * @Note: Currently a existing account within SilverStripe is required.
          * If you want to provision members on the fly we are doing so below
+         * or we send them to registration or signup page? open for improvement
          */
         if (!$member) {
             // create a new member (student/teacher)
